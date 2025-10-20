@@ -13,17 +13,29 @@ class TestViewModel: ObservableObject {
     @Injected private var networkManagerAPI: NetworkManagerAPI
 
     func onAppear() {
-        networkManagerAPI.fetchData(from: URL(string: "https://jsonplaceholder.typicode.com/todos")!, completion: { [weak self] (result: Result<[Todo], Error>) in
-            guard let self else { return }
+        do {
+            let operation: NetworkOperationAPI = NetworkOperationAPIImpl(
+                method: .get,
+                path: "https://jsonplaceholder.typicode.com/todos",
+                headers: [:],
+                queryItems: [:],
+                data: nil
+            )
+            let request = try operation.makeURLRequest()
+            networkManagerAPI.executeRequest(request, completion: { [weak self] (result: Result<[Todo], Error>) in
+                guard let self else { return }
 
-            switch result {
-            case .success(let todos):
-                logger.info("\(todos)")
+                switch result {
+                case .success(let todos):
+                    logger.info("\(todos)")
 
-            case .failure(let error):
-                logger.info(error.localizedDescription)
-            }
-        })
+                case .failure(let error):
+                    logger.info(error.localizedDescription)
+                }
+            })
+        } catch {
+            print(error)
+        }
     }
 }
 

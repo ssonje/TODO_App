@@ -13,8 +13,11 @@ SwiftUI learning project showcasing a simple TODO flow with clean architecture p
   - Registrations for `NetworkingSessionAPI`, `NetworkManagerAPI`, and `LoggerAPI`.
 - **Networking layer**:
   - `NetworkingSessionAPI` abstraction and a default `NetworkingSessionAPIImpl` using `URLSession.shared`.
-  - `NetworkManagerAPI` protocol with a generic `fetchData(from:completion:)`.
-  - `NetworkManagerAPIImpl` performs GET requests and decodes JSON into any `Decodable` type, returning results on the main queue.
+  - `HttpMethod` enum enumerates supported HTTP methods: GET, POST, PUT, DELETE.
+  - `NetworkOperationAPI` protocol describes a single HTTP operation (method, path, headers, query, body) with `makeURLRequest()`.
+  - `NetworkOperationAPIImpl` default implementation builds `URLRequest`, applies headers/query, sets JSON headers as needed, and throws on bad URLs.
+  - `NetworkManagerAPI` protocol exposes `executeRequest(_:completion:)` which executes any configured `URLRequest` and decodes `Decodable` results.
+  - `NetworkManagerAPIImpl` executes requests via `URLSession`, logs, decodes JSON to `Decodable`, and delivers completion on the main queue.
   - `NetworkingAPIConstants` centralizes base URL (`https://jsonplaceholder.typicode.com/`).
 - **Structured logging**:
   - `LoggerAPI` protocol defines `verbose`, `debug`, `info`, `warning`, `error`.
@@ -27,42 +30,6 @@ SwiftUI learning project showcasing a simple TODO flow with clean architecture p
   - `LoggerMock` no-op logger for tests.
   - `RootContainerMock` installs a test DI container with overrides.
   - Tests for `NetworkManagerAPIImpl` cover success, decoding failure, and network error paths.
-
----
-
-### Project Structure
-
-```text
-TODO_App/
-  TODO_App/
-    DependecyInjection/
-      Injected.swift
-      RootContainer.swift
-    Logging/
-      LoggerAPI.swift
-      LoggerAPIImpl.swift
-    Networking/
-      API/
-        NetworkManagerAPI.swift
-      APIImpl/
-        NetworkManagerAPIImpl.swift
-      Base/Session/
-        NetworkingSessionAPI.swift
-        NetworkingSessionAPIImpl.swift
-      Utils/
-        NetworkingAPIConstants.swift
-    ContentView.swift
-    TestViewModel.swift
-    TODO_AppApp.swift
-  TODO_AppTests/
-    MockBaseClasses/
-      LoggerMock.swift
-      NetworkingSessionMock.swift
-      RootContainerMock.swift
-      URLProtocolMock.swift
-    Tests/
-      NetworkManagerAPIImplTests.swift
-```
 
 ---
 
@@ -98,5 +65,3 @@ Managed via Swift Package Manager (see `TODO_App.xcodeproj` workspace `Package.r
 - The current UI intentionally stays minimal; the focus is on a clean, testable foundation (DI + Networking + Logging).
 - Extend `NetworkManagerAPI` with more HTTP verbs, headers, and request building as needed.
 - Add persistence and richer SwiftUI views incrementally on top of this base.
-
-

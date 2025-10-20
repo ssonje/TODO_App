@@ -43,16 +43,23 @@ struct NetworkManagerAPIImplTests: BaseUnitTestCase {
             error: nil
         )
 
-        let testRootContainer = RootContainerMock.install()
         testRootContainer.register(NetworkingSessionAPI.self) { _ in
             NetworkingSessionMock(session: stubbedSession)
         }
         .inObjectScope(.container)
 
         // When
-        let sut: NetworkManagerAPI = NetworkManagerAPIImpl()
+        let networkManager: NetworkManagerAPI = NetworkManagerAPIImpl()
+        let operation: NetworkOperationAPI = NetworkOperationAPIImpl(
+            method: .get,
+            path: url.absoluteString,
+            headers: [:],
+            queryItems: [:],
+            data: nil
+        )
+        let request = try operation.makeURLRequest()
         let result: Result<[Todo], Error> = await withCheckedContinuation { continuation in
-            sut.fetchData(from: url) { (result: Result<[Todo], Error>) in
+            networkManager.executeRequest(request) { (result: Result<[Todo], Error>) in
                 continuation.resume(returning: result)
             }
         }
@@ -82,16 +89,23 @@ struct NetworkManagerAPIImplTests: BaseUnitTestCase {
             error: nil
         )
 
-        let testRootContainer = RootContainerMock.install()
         testRootContainer.register(NetworkingSessionAPI.self) { _ in
             NetworkingSessionMock(session: stubbedSession)
         }
         .inObjectScope(.container)
 
         // When
-        let sut: NetworkManagerAPI = NetworkManagerAPIImpl()
+        let networkManager: NetworkManagerAPI = NetworkManagerAPIImpl()
+        let operation: NetworkOperationAPI = NetworkOperationAPIImpl(
+            method: .get,
+            path: url.absoluteString,
+            headers: [:],
+            queryItems: [:],
+            data: nil
+        )
+        let request = try operation.makeURLRequest()
         let result: Result<[Todo], Error> = await withCheckedContinuation { continuation in
-            sut.fetchData(from: url) { (result: Result<[Todo], Error>) in
+            networkManager.executeRequest(request) { (result: Result<[Todo], Error>) in
                 continuation.resume(returning: result)
             }
         }
@@ -117,16 +131,23 @@ struct NetworkManagerAPIImplTests: BaseUnitTestCase {
             error: Dummy.boom
         )
 
-        let testRootContainer = RootContainerMock.install()
         testRootContainer.register(NetworkingSessionAPI.self) { _ in
             NetworkingSessionMock(session: stubbedSession)
         }
         .inObjectScope(.container)
 
         // When
-        let sut: NetworkManagerAPI = NetworkManagerAPIImpl()
+        let networkManager: NetworkManagerAPI = NetworkManagerAPIImpl()
+        let operation: NetworkOperationAPI = NetworkOperationAPIImpl(
+            method: .get,
+            path: url.absoluteString,
+            headers: [:],
+            queryItems: [:],
+            data: nil
+        )
+        let request = try operation.makeURLRequest()
         let result: Result<[Todo], Error> = await withCheckedContinuation { continuation in
-            sut.fetchData(from: url) { (result: Result<[Todo], Error>) in
+            networkManager.executeRequest(request) { (result: Result<[Todo], Error>) in
                 continuation.resume(returning: result)
             }
         }
