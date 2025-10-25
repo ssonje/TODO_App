@@ -23,49 +23,65 @@ struct CreateTodoItemCategoryView: View {
 
     var body: some View {
         List {
-            Section("Title") {
-                TextField("Enter category title", text: $viewModel.title)
+            titleSection
+            categoriesSection
+        }
+        .navigationTitle("Add category")
+    }
 
-                HStack {
-                    Spacer()
+    // MARK: - View Builders
 
-                    Button("Add category") {
-                        withAnimation {
-                            viewModel.createTodoCategory(modelContext: modelContext)
-                        }
-                    }
-                    .disabled(viewModel.title.isEmpty)
+    @ViewBuilder
+    private var titleSection: some View {
+        Section("Title") {
+            TextField("Enter category title", text: $viewModel.title)
 
-                    Spacer()
+            addCategoryButtonRow
+        }
+    }
+
+    @ViewBuilder
+    private var addCategoryButtonRow: some View {
+        HStack {
+            Spacer()
+
+            Button("Add category") {
+                withAnimation {
+                    viewModel.createTodoCategory(modelContext: modelContext)
                 }
             }
+            .disabled(viewModel.title.isEmpty)
 
-            Section("Categories") {
-                if todoItemCategories.isEmpty == true {
-                    ContentUnavailableView(
-                        "No categories are present",
-                        systemImage: "archivebox"
-                    )
-                } else {
-                    ForEach(todoItemCategories) { todoItemCategory in
-                        Text(todoItemCategory.title)
-                            .swipeActions {
-                                Button(role: .destructive) {
-                                    withAnimation {
-                                        viewModel.deleteTodoCategory(
-                                            todoItemCategory: todoItemCategory,
-                                            modelContext: modelContext
-                                        )
-                                    }
-                                } label: {
-                                    Label("Delete", systemImage: "trash.fill")
+            Spacer()
+        }
+    }
+
+    @ViewBuilder
+    private var categoriesSection: some View {
+        Section("Categories") {
+            if todoItemCategories.isEmpty == true {
+                ContentUnavailableView(
+                    "No categories are present",
+                    systemImage: "archivebox"
+                )
+            } else {
+                ForEach(todoItemCategories) { todoItemCategory in
+                    Text(todoItemCategory.title)
+                        .swipeActions {
+                            Button(role: .destructive) {
+                                withAnimation {
+                                    viewModel.deleteTodoCategory(
+                                        todoItemCategory: todoItemCategory,
+                                        modelContext: modelContext
+                                    )
                                 }
+                            } label: {
+                                Label("Delete", systemImage: "trash.fill")
                             }
-                    }
+                        }
                 }
             }
         }
-        .navigationTitle("Add category")
     }
 }
 

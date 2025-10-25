@@ -32,56 +32,78 @@ struct EditTodoItemView: View {
 
     var body: some View {
         List {
-            Section("Name") {
-                TextField("Name", text: $viewModel.title)
-            }
+            nameSection
 
-            Section("Details") {
-                DatePicker(
-                    "Choose a date",
-                    selection: $viewModel.timestamp
-                )
+            detailsSection
 
-                Toggle("Important?", isOn: $viewModel.isImportant)
-            }
+            categorySection
 
-            Section("Choose a category") {
-                if todoItemCategories.isEmpty == true {
-                    ContentUnavailableView(
-                        "No categories are present",
-                        systemImage: "archivebox"
-                    )
-                } else {
-                    Picker("", selection: $viewModel.selectedTodoItemCategory) {
-                        ForEach(todoItemCategories) { todoItemCategory in
-                            Text(todoItemCategory.title)
-                                .tag(todoItemCategory as TodoItemCategory?)
-                        }
-
-                        Text("None")
-                            .tag(nil as TodoItemCategory?)
-                    }
-                    .labelsHidden()
-                    .pickerStyle(.inline)
-                }
-            }
-
-            Section {
-                HStack {
-                    Spacer()
-
-                    Button("Edit todo") {
-                        withAnimation {
-                            viewModel.editTodoItem(todoItem, modelContext: modelContext)
-                        }
-                        dismiss()
-                    }
-
-                    Spacer()
-                }
-            }
+            editButtonSection
         }
         .navigationTitle("Edit todo")
+    }
+
+    // MARK: - View Builders
+
+    @ViewBuilder
+    private var nameSection: some View {
+        Section("Name") {
+            TextField("Name", text: $viewModel.title)
+        }
+    }
+
+    @ViewBuilder
+    private var detailsSection: some View {
+        Section("Details") {
+            DatePicker(
+                "Choose a date",
+                selection: $viewModel.timestamp
+            )
+
+            Toggle("Important?", isOn: $viewModel.isImportant)
+        }
+    }
+
+    @ViewBuilder
+    private var categorySection: some View {
+        Section("Choose a category") {
+            if todoItemCategories.isEmpty == true {
+                ContentUnavailableView(
+                    "No categories are present",
+                    systemImage: "archivebox"
+                )
+            } else {
+                Picker("", selection: $viewModel.selectedTodoItemCategory) {
+                    ForEach(todoItemCategories) { todoItemCategory in
+                        Text(todoItemCategory.title)
+                            .tag(todoItemCategory as TodoItemCategory?)
+                    }
+
+                    Text("None")
+                        .tag(nil as TodoItemCategory?)
+                }
+                .labelsHidden()
+                .pickerStyle(.inline)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var editButtonSection: some View {
+        Section {
+            HStack {
+                Spacer()
+
+                Button("Edit todo") {
+                    withAnimation {
+                        viewModel.editTodoItem(todoItem, modelContext: modelContext)
+                    }
+                    dismiss()
+                }
+
+                Spacer()
+            }
+        }
     }
 }
 
