@@ -15,6 +15,8 @@ final class HomeViewModel: ObservableObject {
     @Published var showCreateMenu = false
     @Published var path = NavigationPath()
     @Published var searchQuery = ""
+    @Published var sortField: SortField = .date
+    @Published var isAscending: Bool = false
 
     @Injected private var logger: LoggerAPI
 
@@ -43,18 +45,22 @@ final class HomeViewModel: ObservableObject {
     }
 
     func getFilteredTodoItems(_ todoItems: [TodoItem]) -> [TodoItem] {
-        if searchQuery.isEmpty == true {
-            return todoItems
-        }
+        let filteredTodoItems: [TodoItem]
 
-        return todoItems.compactMap { todoItem in
-            return (
-                todoItem.title.lowercased().contains(searchQuery.lowercased())
-                || (todoItem.category?.title.lowercased().contains(searchQuery.lowercased()) == true)
-            )
+        if searchQuery.isEmpty == true {
+            filteredTodoItems = todoItems
+        } else {
+            filteredTodoItems = todoItems.compactMap { todoItem in
+                (
+                    todoItem.title.lowercased().contains(searchQuery.lowercased())
+                    || (todoItem.category?.title.lowercased().contains(searchQuery.lowercased()) == true)
+                )
                 ? todoItem
                 : nil
+            }
         }
+
+        return sortTodoItems(filteredTodoItems)
     }
 
     @ViewBuilder
@@ -67,5 +73,28 @@ final class HomeViewModel: ObservableObject {
         case let .editTodoItem(todoItem: todoItem):
             EditTodoItemView(todoItem: todoItem)
         }
+    }
+
+    // MARK: - Private Helpers
+
+    private func sortTodoItems(_ todoItems: [TodoItem]) -> [TodoItem] {
+        let sortedTodoItems: [TodoItem]
+        switch sortField {
+        case .todoTitle:
+            sortedTodoItems = todoItems.sorted { $0.title < $1.title }
+        case .date:
+            sortedTodoItems = todoItems.sorted { $0.timestamp < $1.timestamp }
+        case .categoryTitle:
+            sortedTodoItems = todoItems.sorted(by: {
+                guard let firstCategoryTitle = $0.category?.title,
+                      let secondCategoryTitle = $1.category?.title else {
+                    return false
+                }
+
+                return firstCategoryTitle < secondCategoryTitle
+            })
+        }
+
+        return isAscending ? sortedTodoItems : Array(sortedTodoItems.reversed())
     }
 }
