@@ -14,6 +14,7 @@ final class HomeViewModel: ObservableObject {
 
     @Published var showCreateMenu = false
     @Published var path = NavigationPath()
+    @Published var searchQuery = ""
 
     @Injected private var logger: LoggerAPI
 
@@ -39,6 +40,21 @@ final class HomeViewModel: ObservableObject {
 
     func onEditTodoItem(_ todoItem: TodoItem) {
         path.append(HomeViewNavigationRoute.editTodoItem(todoItem: todoItem))
+    }
+
+    func getFilteredTodoItems(_ todoItems: [TodoItem]) -> [TodoItem] {
+        if searchQuery.isEmpty == true {
+            return todoItems
+        }
+
+        return todoItems.compactMap { todoItem in
+            return (
+                todoItem.title.lowercased().contains(searchQuery.lowercased())
+                || (todoItem.category?.title.lowercased().contains(searchQuery.lowercased()) == true)
+            )
+                ? todoItem
+                : nil
+        }
     }
 
     @ViewBuilder

@@ -22,12 +22,16 @@ struct HomeView: View {
         sort: \.timestamp
     ) private var todoItems: [TodoItem]
 
+    private var filteredTodoItems: [TodoItem] {
+        viewModel.getFilteredTodoItems(todoItems)
+    }
+
     // MARK: - View
 
     var body: some View {
         NavigationStack(path: $viewModel.path) {
             List {
-                ForEach(todoItems) { todoItem in
+                ForEach(filteredTodoItems) { todoItem in
                     TodoItemRowView(item: todoItem)
                         .swipeActions {
                             Button(role: .destructive) {
@@ -49,7 +53,15 @@ struct HomeView: View {
                 }
             }
             .navigationTitle("My To Do List")
-            
+            .searchable(
+                text: $viewModel.searchQuery,
+                prompt: "Search todo items or categories"
+            )
+            .overlay {
+                if filteredTodoItems.isEmpty {
+                    ContentUnavailableView.search
+                }
+            }
             .overlay {
                 if viewModel.showCreateMenu {
                     Color.black.opacity(0.001)
