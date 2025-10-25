@@ -44,7 +44,7 @@ public class NetworkOperationAPIImpl: NetworkOperationAPI {
     ///   - headers: Additional header fields to include in the request.
     ///   - queryItems: Query parameters to append to the URL.
     ///   - data: Optional request body for methods like `POST`/`PUT`.
-    init(
+    public init(
         method: HttpMethod,
         path: String,
         headers: [String : String],
