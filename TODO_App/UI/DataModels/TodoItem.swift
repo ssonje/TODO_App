@@ -18,6 +18,9 @@ public final class TodoItem {
     public var isImportant: Bool
     public var isCompleted: Bool
 
+    @Relationship(deleteRule: .nullify, inverse: \TodoItemCategory.todoItems)
+    public var category: TodoItemCategory?
+
     // MARK: - Initializer
 
     public init(

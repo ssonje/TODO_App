@@ -5,6 +5,7 @@
 //  Created by Sanket Sonje on 20/10/25.
 //
 
+import SwiftData
 import SwiftUI
 
 struct CreateTodoItemView: View {
@@ -14,7 +15,10 @@ struct CreateTodoItemView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
 
+    @State private var selectedTodoItemCategory: TodoItemCategory?
     @StateObject var viewModel = CreateTodoItemViewModel()
+
+    @Query private var todoItemCategories: [TodoItemCategory]
 
     // MARK: - View
 
@@ -33,13 +37,37 @@ struct CreateTodoItemView: View {
                 Toggle("Important?", isOn: $viewModel.isImportant)
             }
 
+            Section("Choose a category") {
+                if todoItemCategories.isEmpty == true {
+                    ContentUnavailableView(
+                        "No categories are present",
+                        systemImage: "archivebox"
+                    )
+                } else {
+                    Picker("", selection: $selectedTodoItemCategory) {
+                        ForEach(todoItemCategories) { todoItemCategory in
+                            Text(todoItemCategory.title)
+                                .tag(todoItemCategory as TodoItemCategory?)
+                        }
+                        
+                        Text("None")
+                            .tag(nil as TodoItemCategory?)
+                    }
+                    .labelsHidden()
+                    .pickerStyle(.inline)
+                }
+            }
+
             Section {
                 HStack {
                     Spacer()
 
                     Button("Create todo") {
                         withAnimation {
-                            viewModel.createTodoItem(modelContext: modelContext)
+                            viewModel.createTodoItem(
+                                selectedTodoItemCategory: selectedTodoItemCategory,
+                                modelContext: modelContext
+                            )
                         }
                         dismiss()
                     }

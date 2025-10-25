@@ -20,7 +20,10 @@ class CreateTodoItemViewModel: ObservableObject {
 
     // MARK: - Helpers
 
-    func createTodoItem(modelContext: ModelContext) {
+    func createTodoItem(
+        selectedTodoItemCategory: TodoItemCategory?,
+        modelContext: ModelContext
+    ) {
         let todoItem = TodoItem(
             title: title,
             timestamp: timestamp,
@@ -29,6 +32,9 @@ class CreateTodoItemViewModel: ObservableObject {
         )
 
         modelContext.insert(todoItem)
+
+        todoItem.category = selectedTodoItemCategory
+        selectedTodoItemCategory?.todoItems?.append(todoItem)
 
         do {
             try modelContext.save()

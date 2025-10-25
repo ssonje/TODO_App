@@ -39,6 +39,20 @@ struct TodoItemRowView: View {
 
                 Text("\(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .shortened))")
                     .font(.callout)
+
+                if let todoItemCategory = item.category {
+                    Text("\(todoItemCategory.title)")
+                        .foregroundStyle(.blue)
+                        .bold()
+                        .padding()
+                        .background(
+                            Color.blue.opacity(0.1),
+                            in: RoundedRectangle(
+                                cornerRadius: 8,
+                                style: .continuous
+                            )
+                        )
+                }
             }
 
             Spacer()
@@ -60,8 +74,8 @@ struct TodoItemRowView: View {
                     .font(.largeTitle)
             }
             .buttonStyle(.plain)
-
         }
+        .padding()
     }
 }
 
@@ -105,5 +119,56 @@ struct TodoItemRowView: View {
             )
         )
 
+        TodoItemRowView(
+            item: {
+                let item = TodoItem(
+                    title: "Test",
+                    timestamp: .now,
+                    isImportant: true,
+                    isCompleted: true
+                )
+                item.category = TodoItemCategory(title: "Work")
+                return item
+            }()
+        )
+
+        TodoItemRowView(
+            item: {
+                let item = TodoItem(
+                    title: "Test",
+                    timestamp: .now,
+                    isImportant: true,
+                    isCompleted: false
+                )
+                item.category = TodoItemCategory(title: "Personal")
+                return item
+            }()
+        )
+
+        TodoItemRowView(
+            item: {
+                let item = TodoItem(
+                    title: "Test",
+                    timestamp: .now,
+                    isImportant: false,
+                    isCompleted: true
+                )
+                item.category = TodoItemCategory(title: "Errands")
+                return item
+            }()
+        )
+
+        TodoItemRowView(
+            item: {
+                let item = TodoItem(
+                    title: "Test",
+                    timestamp: .now,
+                    isImportant: false,
+                    isCompleted: false
+                )
+                item.category = TodoItemCategory(title: "Home")
+                return item
+            }()
+        )
     }
 }

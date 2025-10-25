@@ -16,6 +16,9 @@ struct EditTodoItemView: View {
     @Environment(\.modelContext) private var modelContext
 
     @StateObject var viewModel: EditTodoItemViewModel
+
+    @Query private var todoItemCategories: [TodoItemCategory]
+
     var todoItem: TodoItem
 
     // MARK: - Init
@@ -40,6 +43,27 @@ struct EditTodoItemView: View {
                 )
 
                 Toggle("Important?", isOn: $viewModel.isImportant)
+            }
+
+            Section("Choose a category") {
+                if todoItemCategories.isEmpty == true {
+                    ContentUnavailableView(
+                        "No categories are present",
+                        systemImage: "archivebox"
+                    )
+                } else {
+                    Picker("", selection: $viewModel.selectedTodoItemCategory) {
+                        ForEach(todoItemCategories) { todoItemCategory in
+                            Text(todoItemCategory.title)
+                                .tag(todoItemCategory as TodoItemCategory?)
+                        }
+
+                        Text("None")
+                            .tag(nil as TodoItemCategory?)
+                    }
+                    .labelsHidden()
+                    .pickerStyle(.inline)
+                }
             }
 
             Section {

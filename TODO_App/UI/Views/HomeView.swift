@@ -15,9 +15,6 @@ struct HomeView: View {
     @Environment(\.modelContext) var modelContext
     @StateObject var viewModel = HomeViewModel()
 
-    @State private var shouldShowCreateTodoItemFullScreen = false
-    @State private var todoItemEdit: TodoItem?
-
     @Query(
         filter: #Predicate<TodoItem> { todoItem in
             todoItem.isCompleted == false
@@ -28,14 +25,14 @@ struct HomeView: View {
     // MARK: - View
 
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $viewModel.path) {
             List {
-                ForEach(todoItems) { item in
-                    TodoItemRowView(item: item)
+                ForEach(todoItems) { todoItem in
+                    TodoItemRowView(item: todoItem)
                         .swipeActions {
                             Button(role: .destructive) {
                                 withAnimation {
-                                    viewModel.deleteTodoItem(item, modelContext: modelContext)
+                                    viewModel.deleteTodoItem(todoItem, modelContext: modelContext)
                                 }
                             } label: {
                                 Label("Delete", systemImage: "trash")
@@ -43,7 +40,7 @@ struct HomeView: View {
                             }
 
                             Button {
-                                todoItemEdit = item
+                                viewModel.onEditTodoItem(todoItem)
                             } label: {
                                 Label("Edit", systemImage: "pencil")
                             }
@@ -52,31 +49,33 @@ struct HomeView: View {
                 }
             }
             .navigationTitle("My To Do List")
-            .toolbar {
-                ToolbarItem {
-                    Button(
-                        action: {
-                            shouldShowCreateTodoItemFullScreen.toggle()
-                        }, label: {
-                            Label("Add item", systemImage: "plus")
+            
+            .overlay {
+                if viewModel.showCreateMenu {
+                    Color.black.opacity(0.001)
+                        .ignoresSafeArea()
+                        .onTapGesture {
+                            withAnimation(.spring(response: 0.25, dampingFraction: 0.9)) {
+                                viewModel.showCreateMenu = false
+                            }
                         }
-                    )
                 }
             }
-            .fullScreenCover(
-                isPresented: $shouldShowCreateTodoItemFullScreen,
-                content: {
-                    NavigationStack {
-                        CreateTodoItemView()
+            .overlay(alignment: .bottomTrailing) {
+                CreateTodoItemOrCategoryMenuView(
+                    isPresented: $viewModel.showCreateMenu,
+                    onCreateTodoItem: {
+                        viewModel.onCreateTodoItem()
+                    },
+                    onCreateCategory: {
+                        viewModel.onCreateCategory()
                     }
-                }
-            )
-            .fullScreenCover(item: $todoItemEdit) {
-                todoItemEdit = nil
-            } content: { todoItem in
-                NavigationStack {
-                    EditTodoItemView(todoItem: todoItem)
-                }
+                )
+                .padding(.trailing, 16)
+                .padding(.bottom, 16)
+            }
+            .navigationDestination(for: HomeViewNavigationRoute.self) { route in
+                viewModel.navigateToDestination(route: route)
             }
         }
     }
