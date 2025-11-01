@@ -101,16 +101,19 @@ struct HomeView: View {
 
     @ViewBuilder
     private var floatingCreateMenu: some View {
-        CreateTodoItemOrCategoryMenuView(
-            isPresented: $viewModel.showCreateMenu,
-            onCreateTodoItem: {
-                viewModel.onCreateTodoItem()
-            },
-            onCreateCategory: {
-                viewModel.onCreateCategory()
-            }
-        )
-        .padding(.trailing, 16)
+        Button {
+            viewModel.onCreateCategory()
+        } label: {
+            Image(systemName: "plus")
+                .font(.system(size: 24, weight: .bold))
+                .foregroundStyle(.white)
+                .frame(width: 64, height: 64)
+                .background(
+                    Circle().fill(Color.accentColor)
+                )
+                .shadow(radius: 4)
+        }
+        .padding(.trailing, 32)
         .padding(.bottom, 16)
     }
 
