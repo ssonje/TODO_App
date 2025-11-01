@@ -35,10 +35,10 @@ class CreateTodoItemViewModel: ObservableObject {
     func createTodoItem(
         selectedTodoItemCategory: TodoItemCategory?,
         modelContext: ModelContext
-    ) {
+    ) -> Bool {
         guard title.isEmpty == false else {
             shouldDisplayTitleError = true
-            return
+            return false
         }
 
         shouldDisplayTitleError = false
@@ -50,7 +50,7 @@ class CreateTodoItemViewModel: ObservableObject {
             timestamp: timestamp,
             isImportant: isImportant
         )
-        persistLocalCreation(
+        return persistLocalCreation(
             from: todoItem,
             selectedCategory: selectedTodoItemCategory,
             modelContext: modelContext
@@ -97,7 +97,11 @@ class CreateTodoItemViewModel: ObservableObject {
         }
     }
 
-    private func persistLocalCreation(from todoItem: TodoItem, selectedCategory: TodoItemCategory?, modelContext: ModelContext) {
+    private func persistLocalCreation(
+        from todoItem: TodoItem,
+        selectedCategory: TodoItemCategory?,
+        modelContext: ModelContext
+    ) -> Bool {
         modelContext.insert(todoItem)
 
         todoItem.category = selectedCategory
@@ -105,8 +109,10 @@ class CreateTodoItemViewModel: ObservableObject {
 
         do {
             try modelContext.save()
+            return true
         } catch {
             logger.error("Failed to save created TodoItem: \(error)")
+            return false
         }
     }
 }

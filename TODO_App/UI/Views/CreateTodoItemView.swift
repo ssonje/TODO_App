@@ -104,12 +104,13 @@ struct CreateTodoItemView: View {
 
                 Button {
                     withAnimation {
-                        viewModel.createTodoItem(
+                        if viewModel.createTodoItem(
                             selectedTodoItemCategory: viewModel.selectedTodoItemCategory,
                             modelContext: modelContext
-                        )
+                        ) {
+                            dismiss()
+                        }
                     }
-                    dismiss()
                 } label: {
                     Label(
                         "Create todo",
