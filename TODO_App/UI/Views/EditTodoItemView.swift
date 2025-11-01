@@ -113,9 +113,9 @@ struct EditTodoItemView: View {
 
     let todoItem = TodoItem(
         title: "Read a book",
+        completed: false,
         timestamp: .now,
-        isImportant: true,
-        isCompleted: false
+        isImportant: false
     )
 
     return NavigationStack {

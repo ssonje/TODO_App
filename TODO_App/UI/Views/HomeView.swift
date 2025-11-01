@@ -17,7 +17,7 @@ struct HomeView: View {
 
     @Query(
         filter: #Predicate<TodoItem> { todoItem in
-            todoItem.isCompleted == false
+            todoItem.completed == false
         }
     ) private var todoItems: [TodoItem]
 
@@ -52,6 +52,10 @@ struct HomeView: View {
                     ToolbarItem(placement: .topBarTrailing) {
                         sortingMenu
                     }
+                }
+                .task {
+                    // Making this as commented because we don't wanted to fetch the initial records from server
+                    // viewModel.fetchInitialTodosIfNeeded(modelContext: modelContext)
                 }
         }
     }

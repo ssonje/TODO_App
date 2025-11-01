@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Foundation
 import SwiftData
 
 class CreateTodoItemViewModel: ObservableObject {
@@ -17,6 +18,7 @@ class CreateTodoItemViewModel: ObservableObject {
     @Published var isImportant: Bool = false
 
     @Injected private var logger: LoggerAPI
+    @Injected private var networkManagerAPI: NetworkManagerAPI
 
     // MARK: - Helpers
 
@@ -25,21 +27,70 @@ class CreateTodoItemViewModel: ObservableObject {
         modelContext: ModelContext
     ) {
         let todoItem = TodoItem(
+            id: 0,
+            userId: 1,
             title: title,
-            timestamp: timestamp,
-            isImportant: isImportant,
-            isCompleted: false
+            completed: false
+        )
+        persistLocalCreation(
+            from: todoItem,
+            selectedCategory: selectedTodoItemCategory,
+            modelContext: modelContext
         )
 
+        // Do not perform delete request
+        /*
+            performCreateTodoRequest { [weak self] (result: Result<TodoItem, Error>) in
+                guard let self else { return }
+
+                switch result {
+                case .success(let todoItem):
+                    self.persistLocalCreation(from: todoItem, selectedCategory: selectedTodoItemCategory, modelContext: modelContext)
+                case .failure(let error):
+                    self.logger.info(error.localizedDescription)
+                }
+            }
+         */
+    }
+
+    // MARK: - Private Helpers
+
+    private func performCreateTodoRequest(completion: @escaping (Result<TodoItem, Error>) -> Void) {
+        do {
+            let requestBody = TodoItem(
+                id: 0,
+                userId: 1,
+                title: title,
+                completed: false
+            )
+            let data = try JSONEncoder().encode(requestBody)
+            let operation: NetworkOperationAPI = NetworkOperationAPIImpl(
+                method: .post,
+                path: "https://jsonplaceholder.typicode.com/todos",
+                headers: [:],
+                queryItems: [:],
+                data: data
+            )
+            let request = try operation.makeURLRequest()
+            networkManagerAPI.executeRequest(request, completion: completion)
+        } catch {
+            logger.info(error.localizedDescription)
+            completion(.failure(error))
+        }
+    }
+
+    private func persistLocalCreation(from todoItem: TodoItem, selectedCategory: TodoItemCategory?, modelContext: ModelContext) {
         modelContext.insert(todoItem)
 
-        todoItem.category = selectedTodoItemCategory
-        selectedTodoItemCategory?.todoItems?.append(todoItem)
+        todoItem.timestamp = timestamp
+        todoItem.isImportant = isImportant
+        todoItem.category = selectedCategory
+        selectedCategory?.todoItems?.append(todoItem)
 
         do {
             try modelContext.save()
         } catch {
-            logger.error("Failed to persist creation: \(error)")
+            logger.error("Failed to save created TodoItem: \(error)")
         }
     }
 }

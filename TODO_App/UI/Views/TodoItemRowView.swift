@@ -47,7 +47,7 @@ struct TodoItemRowView: View {
 
     @ViewBuilder
     private var importantIcon: some View {
-        if item.isImportant {
+        if let isImportant = item.isImportant, isImportant == true {
             Image(systemName: "exclamationmark.3")
                 .symbolVariant(.fill)
                 .foregroundColor(.red)
@@ -65,8 +65,10 @@ struct TodoItemRowView: View {
 
     @ViewBuilder
     private var timestampText: some View {
-        Text("\(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .shortened))")
-            .font(.callout)
+        if let timestamp = item.timestamp {
+            Text("\(timestamp, format: Date.FormatStyle(date: .numeric, time: .shortened))")
+                .font(.callout)
+        }
     }
 
     @ViewBuilder
@@ -90,7 +92,7 @@ struct TodoItemRowView: View {
     private var completeButton: some View {
         Button {
             withAnimation {
-                item.isCompleted.toggle()
+                item.completed.toggle()
                 do {
                     try item.modelContext?.save()
                 } catch {
@@ -100,7 +102,7 @@ struct TodoItemRowView: View {
         } label: {
             Image(systemName: "checkmark")
                 .symbolVariant(.circle.fill)
-                .foregroundStyle(item.isCompleted ? .green : .gray)
+                .foregroundStyle(item.completed ? .green : .gray)
                 .font(.largeTitle)
         }
         .buttonStyle(.plain)
@@ -113,47 +115,47 @@ struct TodoItemRowView: View {
     List {
         TodoItemRowView(
             item: TodoItem(
-                title: "Test",
+                title: "Test 1",
+                completed: true,
                 timestamp: .now,
-                isImportant: true,
-                isCompleted: true
+                isImportant: true
             )
         )
 
         TodoItemRowView(
             item: TodoItem(
-                title: "Test",
+                title: "Test 2",
+                completed: false,
                 timestamp: .now,
-                isImportant: true,
-                isCompleted: false
+                isImportant: true
             )
         )
 
         TodoItemRowView(
             item: TodoItem(
-                title: "Test",
+                title: "Test 3",
+                completed: true,
                 timestamp: .now,
-                isImportant: false,
-                isCompleted: true
+                isImportant: false
             )
         )
 
         TodoItemRowView(
             item: TodoItem(
-                title: "Test",
+                title: "Test 4",
+                completed: false,
                 timestamp: .now,
-                isImportant: false,
-                isCompleted: false
+                isImportant: false
             )
         )
 
         TodoItemRowView(
             item: {
                 let item = TodoItem(
-                    title: "Test",
+                    title: "Work Item",
+                    completed: true,
                     timestamp: .now,
-                    isImportant: true,
-                    isCompleted: true
+                    isImportant: true
                 )
                 item.category = TodoItemCategory(title: "Work")
                 return item
@@ -163,10 +165,10 @@ struct TodoItemRowView: View {
         TodoItemRowView(
             item: {
                 let item = TodoItem(
-                    title: "Test",
+                    title: "Personal Item",
+                    completed: false,
                     timestamp: .now,
-                    isImportant: true,
-                    isCompleted: false
+                    isImportant: true
                 )
                 item.category = TodoItemCategory(title: "Personal")
                 return item
@@ -176,10 +178,10 @@ struct TodoItemRowView: View {
         TodoItemRowView(
             item: {
                 let item = TodoItem(
-                    title: "Test",
+                    title: "Errands Item",
+                    completed: true,
                     timestamp: .now,
-                    isImportant: false,
-                    isCompleted: true
+                    isImportant: false
                 )
                 item.category = TodoItemCategory(title: "Errands")
                 return item
@@ -189,10 +191,10 @@ struct TodoItemRowView: View {
         TodoItemRowView(
             item: {
                 let item = TodoItem(
-                    title: "Test",
+                    title: "Home Item",
+                    completed: false,
                     timestamp: .now,
-                    isImportant: false,
-                    isCompleted: false
+                    isImportant: false
                 )
                 item.category = TodoItemCategory(title: "Home")
                 return item
