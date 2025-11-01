@@ -15,9 +15,15 @@ struct CreateTodoItemCategoryView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
 
-    @StateObject var viewModel = CreateTodoItemCategoryViewModel()
+    @StateObject var viewModel: CreateTodoItemCategoryViewModel
 
     @Query private var todoItemCategories: [TodoItemCategory]
+
+    // MARK: - Init
+
+    init(onSelect: ((TodoItemCategory?) -> Void)? = nil) {
+        _viewModel = StateObject(wrappedValue: CreateTodoItemCategoryViewModel(onSelect: onSelect))
+    }
 
     // MARK: - View
 
@@ -49,6 +55,11 @@ struct CreateTodoItemCategoryView: View {
                 withAnimation {
                     viewModel.createTodoCategory(modelContext: modelContext)
                 }
+
+                // If used as a selector, auto-dismiss after creating+selecting
+                if viewModel.onSelect != nil {
+                    dismiss()
+                }
             }
             .disabled(viewModel.title.isEmpty)
 
@@ -66,19 +77,43 @@ struct CreateTodoItemCategoryView: View {
                 )
             } else {
                 ForEach(todoItemCategories) { todoItemCategory in
-                    Text(todoItemCategory.title)
-                        .swipeActions {
-                            Button(role: .destructive) {
-                                withAnimation {
-                                    viewModel.deleteTodoCategory(
-                                        todoItemCategory: todoItemCategory,
-                                        modelContext: modelContext
-                                    )
-                                }
-                            } label: {
-                                Label("Delete", systemImage: "trash.fill")
+                    HStack {
+                        Text(todoItemCategory.title)
+                        Spacer()
+                    }
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        guard let onSelect = viewModel.onSelect else { return }
+
+                        onSelect(todoItemCategory)
+                        dismiss()
+                    }
+                    .swipeActions {
+                        Button(role: .destructive) {
+                            withAnimation {
+                                viewModel.deleteTodoCategory(
+                                    todoItemCategory: todoItemCategory,
+                                    modelContext: modelContext
+                                )
                             }
+                        } label: {
+                            Label("Delete", systemImage: "trash.fill")
                         }
+                    }
+                }
+
+                // Provide an explicit option to clear selection when used in selection mode
+                if viewModel.onSelect != nil {
+                    HStack {
+                        Text("None")
+                            .foregroundStyle(.secondary)
+                        Spacer()
+                    }
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        viewModel.onSelect?(nil)
+                        dismiss()
+                    }
                 }
             }
         }

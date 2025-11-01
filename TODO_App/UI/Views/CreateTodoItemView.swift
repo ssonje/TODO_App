@@ -33,7 +33,9 @@ struct CreateTodoItemView: View {
         }
         .navigationTitle("Create todo")
         .navigationDestination(isPresented: $viewModel.pushCreateCategory) {
-            CreateTodoItemCategoryView()
+            CreateTodoItemCategoryView { selected in
+                viewModel.selectedTodoItemCategory = selected
+            }
         }
     }
 

@@ -14,7 +14,16 @@ class CreateTodoItemCategoryViewModel: ObservableObject {
 
     @Published var title: String = ""
 
+    // Optional selection handler that lets callers receive the selected/new category
+    var onSelect: ((TodoItemCategory?) -> Void)?
+
     @Injected private var logger: LoggerAPI
+
+    // MARK: - Init
+
+    init(onSelect: ((TodoItemCategory?) -> Void)? = nil) {
+        self.onSelect = onSelect
+    }
 
     // MARK: - Helpers
 
@@ -26,6 +35,9 @@ class CreateTodoItemCategoryViewModel: ObservableObject {
 
         do {
             try modelContext.save()
+
+            // If selection callback exists, notify with the newly created category
+            onSelect?(todoItemCategory)
         } catch {
             logger.error("Failed to persist creation: \(error)")
         }
