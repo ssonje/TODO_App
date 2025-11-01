@@ -18,6 +18,7 @@ final class EditTodoItemViewModel: ObservableObject {
     @Published var timestamp: Date
     @Published var isImportant: Bool
     @Published var selectedTodoItemCategory: TodoItemCategory?
+    @Published var pushCreateCategory: Bool = false
 
     @Injected private var logger: LoggerAPI
     @Injected private var networkManagerAPI: NetworkManagerAPI

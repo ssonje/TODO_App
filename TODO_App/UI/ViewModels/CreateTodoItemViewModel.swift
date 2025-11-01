@@ -16,6 +16,8 @@ class CreateTodoItemViewModel: ObservableObject {
     @Published var title: String = ""
     @Published var timestamp: Date = .now
     @Published var isImportant: Bool = false
+    @Published var pushCreateCategory: Bool = false
+    @Published var selectedTodoItemCategory: TodoItemCategory?
 
     @Injected private var logger: LoggerAPI
     @Injected private var networkManagerAPI: NetworkManagerAPI

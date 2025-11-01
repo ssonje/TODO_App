@@ -41,14 +41,17 @@ struct EditTodoItemView: View {
             editButtonSection
         }
         .navigationTitle("Edit todo")
+        .navigationDestination(isPresented: $viewModel.pushCreateCategory) {
+            CreateTodoItemCategoryView()
+        }
     }
 
     // MARK: - View Builders
 
     @ViewBuilder
     private var nameSection: some View {
-        Section("Name") {
-            TextField("Name", text: $viewModel.title)
+        Section("Title") {
+            TextField("Todo Item Title", text: $viewModel.title)
         }
     }
 
@@ -68,10 +71,15 @@ struct EditTodoItemView: View {
     private var categorySection: some View {
         Section("Choose a category") {
             if todoItemCategories.isEmpty == true {
-                ContentUnavailableView(
-                    "No categories are present",
-                    systemImage: "archivebox"
-                )
+                HStack(spacing: 8) {
+                    Image(systemName: "archivebox")
+                        .foregroundStyle(.secondary)
+                    Text("No categories yet")
+                        .foregroundStyle(.secondary)
+                    Spacer()
+                }
+
+                createCategoryButton
             } else {
                 Picker("", selection: $viewModel.selectedTodoItemCategory) {
                     ForEach(todoItemCategories) { todoItemCategory in
@@ -83,7 +91,9 @@ struct EditTodoItemView: View {
                         .tag(nil as TodoItemCategory?)
                 }
                 .labelsHidden()
-                .pickerStyle(.inline)
+                .pickerStyle(.navigationLink)
+
+                createCategoryButton
             }
         }
     }
@@ -94,15 +104,38 @@ struct EditTodoItemView: View {
             HStack {
                 Spacer()
 
-                Button("Edit todo") {
+                Button {
                     withAnimation {
                         viewModel.editTodoItem(todoItem, modelContext: modelContext)
                     }
                     dismiss()
+                } label: {
+                    Label(
+                        "Edit Todo",
+                        systemImage: "pencil.line"
+                    )
                 }
 
                 Spacer()
             }
+        }
+    }
+
+    @ViewBuilder
+    private var createCategoryButton: some View {
+        HStack {
+            Spacer()
+
+            Button {
+                viewModel.pushCreateCategory = true
+            } label: {
+                Label(
+                    todoItemCategories.isEmpty == true ? "Create category" : "Add category",
+                    systemImage: "plus.circle"
+                )
+            }
+
+            Spacer()
         }
     }
 }

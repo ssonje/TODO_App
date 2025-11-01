@@ -15,7 +15,6 @@ struct CreateTodoItemView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
 
-    @State private var selectedTodoItemCategory: TodoItemCategory?
     @StateObject var viewModel = CreateTodoItemViewModel()
 
     @Query private var todoItemCategories: [TodoItemCategory]
@@ -33,6 +32,9 @@ struct CreateTodoItemView: View {
             createButtonSection
         }
         .navigationTitle("Create todo")
+        .navigationDestination(isPresented: $viewModel.pushCreateCategory) {
+            CreateTodoItemCategoryView()
+        }
     }
 
     // MARK: - View Builders
@@ -60,12 +62,17 @@ struct CreateTodoItemView: View {
     private var categorySection: some View {
         Section("Choose a category") {
             if todoItemCategories.isEmpty == true {
-                ContentUnavailableView(
-                    "No categories are present",
-                    systemImage: "archivebox"
-                )
+                HStack(spacing: 8) {
+                    Image(systemName: "archivebox")
+                        .foregroundStyle(.secondary)
+                    Text("No categories yet")
+                        .foregroundStyle(.secondary)
+                    Spacer()
+                }
+
+                createCategoryButton
             } else {
-                Picker("", selection: $selectedTodoItemCategory) {
+                Picker("", selection: $viewModel.selectedTodoItemCategory) {
                     ForEach(todoItemCategories) { todoItemCategory in
                         Text(todoItemCategory.title)
                             .tag(todoItemCategory as TodoItemCategory?)
@@ -75,7 +82,9 @@ struct CreateTodoItemView: View {
                         .tag(nil as TodoItemCategory?)
                 }
                 .labelsHidden()
-                .pickerStyle(.inline)
+                .pickerStyle(.navigationLink)
+
+                createCategoryButton
             }
         }
     }
@@ -86,18 +95,41 @@ struct CreateTodoItemView: View {
             HStack {
                 Spacer()
 
-                Button("Create todo") {
+                Button {
                     withAnimation {
                         viewModel.createTodoItem(
-                            selectedTodoItemCategory: selectedTodoItemCategory,
+                            selectedTodoItemCategory: viewModel.selectedTodoItemCategory,
                             modelContext: modelContext
                         )
                     }
                     dismiss()
+                } label: {
+                    Label(
+                        "Create todo",
+                        systemImage: "pencil.line"
+                    )
                 }
 
                 Spacer()
             }
+        }
+    }
+
+    @ViewBuilder
+    private var createCategoryButton: some View {
+        HStack {
+            Spacer()
+
+            Button {
+                viewModel.pushCreateCategory = true
+            } label: {
+                Label(
+                    todoItemCategories.isEmpty == true ? "Create category" : "Add category",
+                    systemImage: "plus.circle"
+                )
+            }
+
+            Spacer()
         }
     }
 }
