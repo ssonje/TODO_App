@@ -54,6 +54,11 @@ struct EditTodoItemView: View {
     private var nameSection: some View {
         Section("Title") {
             TextField("Todo Item Title", text: $viewModel.title)
+
+            if viewModel.shouldDisplayTitleError {
+                Text("Todo item title should be non empty")
+                    .style(.tag(color: .red))
+            }
         }
     }
 
@@ -108,9 +113,10 @@ struct EditTodoItemView: View {
 
                 Button {
                     withAnimation {
-                        viewModel.editTodoItem(todoItem, modelContext: modelContext)
+                        if viewModel.editTodoItem(todoItem, modelContext: modelContext) {
+                            dismiss()
+                        }
                     }
-                    dismiss()
                 } label: {
                     Label(
                         "Edit Todo",

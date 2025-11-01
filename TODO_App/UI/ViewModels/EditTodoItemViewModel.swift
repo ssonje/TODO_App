@@ -13,7 +13,15 @@ final class EditTodoItemViewModel: ObservableObject {
 
     // MARK: - Properties
 
-    @Published var title: String
+    @Published var title: String {
+        didSet {
+            if shouldDisplayTitleError && title.isEmpty == false {
+                shouldDisplayTitleError = false
+            }
+        }
+    }
+    @Published var shouldDisplayTitleError: Bool = false
+
     @Published var completed: Bool
     @Published var timestamp: Date
     @Published var isImportant: Bool
@@ -35,8 +43,13 @@ final class EditTodoItemViewModel: ObservableObject {
 
     // MARK: - Helpers
 
-    func editTodoItem(_ todoItem: TodoItem, modelContext: ModelContext) {
-        persistLocalEditFromViewModel(todoItem, modelContext: modelContext)
+    func editTodoItem(_ todoItem: TodoItem, modelContext: ModelContext) -> Bool {
+        guard title.isEmpty == false else {
+            shouldDisplayTitleError = true
+            return false
+        }
+
+        return persistLocalEditFromViewModel(todoItem, modelContext: modelContext)
 
         // Do not perform edit request
         /*
@@ -93,7 +106,10 @@ final class EditTodoItemViewModel: ObservableObject {
         }
     }
 
-    private func persistLocalEditFromViewModel(_ todoItem: TodoItem, modelContext: ModelContext) {
+    private func persistLocalEditFromViewModel(
+        _ todoItem: TodoItem,
+        modelContext: ModelContext
+    ) -> Bool {
         todoItem.title = title
         todoItem.completed = completed
         todoItem.timestamp = timestamp
@@ -102,8 +118,10 @@ final class EditTodoItemViewModel: ObservableObject {
 
         do {
             try modelContext.save()
+            return true
         } catch {
             logger.error("Failed to persist edited todo item: \(error)")
+            return false
         }
     }
 }
