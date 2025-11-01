@@ -45,6 +45,11 @@ struct CreateTodoItemView: View {
     private var titleSection: some View {
         Section("Title") {
             TextField("Todo Item Title", text: $viewModel.title)
+
+            if viewModel.shouldDisplayTitleError {
+                Text("Todo item title should be non empty")
+                    .style(.tag(color: .red))
+            }
         }
     }
 

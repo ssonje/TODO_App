@@ -13,7 +13,15 @@ class CreateTodoItemViewModel: ObservableObject {
 
     // MARK: - Properties
 
-    @Published var title: String = ""
+    @Published var title: String = "" {
+        didSet {
+            if shouldDisplayTitleError && title.isEmpty == false {
+                shouldDisplayTitleError = false
+            }
+        }
+    }
+
+    @Published var shouldDisplayTitleError: Bool = false
     @Published var timestamp: Date = .now
     @Published var isImportant: Bool = false
     @Published var pushCreateCategory: Bool = false
@@ -28,6 +36,12 @@ class CreateTodoItemViewModel: ObservableObject {
         selectedTodoItemCategory: TodoItemCategory?,
         modelContext: ModelContext
     ) {
+        guard title.isEmpty == false else {
+            shouldDisplayTitleError = true
+            return
+        }
+
+        shouldDisplayTitleError = false
         let todoItem = TodoItem(
             id: 0,
             userId: 1,
