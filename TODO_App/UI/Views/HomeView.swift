@@ -102,7 +102,7 @@ struct HomeView: View {
     @ViewBuilder
     private var floatingCreateMenu: some View {
         Button {
-            viewModel.onCreateCategory()
+            viewModel.onCreateTodoItem()
         } label: {
             Image(systemName: "plus")
                 .font(.system(size: 24, weight: .bold))
