@@ -30,7 +30,9 @@ class CreateTodoItemViewModel: ObservableObject {
             id: 0,
             userId: 1,
             title: title,
-            completed: false
+            completed: false,
+            timestamp: timestamp,
+            isImportant: isImportant
         )
         persistLocalCreation(
             from: todoItem,
@@ -82,8 +84,6 @@ class CreateTodoItemViewModel: ObservableObject {
     private func persistLocalCreation(from todoItem: TodoItem, selectedCategory: TodoItemCategory?, modelContext: ModelContext) {
         modelContext.insert(todoItem)
 
-        todoItem.timestamp = timestamp
-        todoItem.isImportant = isImportant
         todoItem.category = selectedCategory
         selectedCategory?.todoItems?.append(todoItem)
 

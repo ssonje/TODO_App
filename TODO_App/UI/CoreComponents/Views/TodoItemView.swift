@@ -43,6 +43,10 @@ struct TodoItemView: View {
                 }
 
                 HStack(spacing: 8) {
+                    if viewModel.isOverdue {
+                        TodoItemCategoryView(title: "Overdue", color: .red)
+                    }
+
                     if viewModel.isDueSoon {
                         TodoItemCategoryView(title: "Due Soon", color: .red)
                     }
@@ -57,9 +61,6 @@ struct TodoItemView: View {
 
             completionCheckbox
         }
-        .onTapGesture {
-            viewModel.handleTap()
-        }
         .swipeActions {
             Button(role: .destructive) {
                 withAnimation {
@@ -70,6 +71,11 @@ struct TodoItemView: View {
             }
         }
         .card(padding: 24)
+        .contentShape(Rectangle())
+        .onTapGesture {
+            viewModel.handleTap()
+        }
+        .strikethrough(viewModel.isOverdue)
     }
 
     // MARK: - Subviews

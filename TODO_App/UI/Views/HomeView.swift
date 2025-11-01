@@ -65,27 +65,18 @@ struct HomeView: View {
     @ViewBuilder
     private var listContent: some View {
         List {
-            ForEach(filteredTodoItems) { todoItem in
-                TodoItemRowView(item: todoItem)
-                    .swipeActions {
-                        Button(role: .destructive) {
-                            withAnimation {
-                                viewModel.deleteTodoItem(todoItem, modelContext: modelContext)
-                            }
-                        } label: {
-                            Label("Delete", systemImage: "trash")
-                                .symbolVariant(.fill)
-                        }
-
-                        Button {
-                            viewModel.onEditTodoItem(todoItem)
-                        } label: {
-                            Label("Edit", systemImage: "pencil")
-                        }
-                        .tint(.orange)
+            ForEach(filteredTodoItems, id: \.persistentModelID) { todoItem in
+                TodoItemView(
+                    item: todoItem,
+                    onTap: { item in
+                        viewModel.onEditTodoItem(item)
                     }
+                )
+                .listRowSeparator(.hidden)
             }
         }
+        .listStyle(.plain)
+        .scrollContentBackground(.hidden)
     }
 
     @ViewBuilder

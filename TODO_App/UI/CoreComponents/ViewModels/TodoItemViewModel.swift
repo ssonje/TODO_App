@@ -21,6 +21,11 @@ final class TodoItemViewModel: ObservableObject {
         return timeRemaining >= 0 && timeRemaining <= 3600
     }
 
+    var isOverdue: Bool {
+        guard let timestamp = item.timestamp else { return false }
+        return timestamp < Date()
+    }
+
     private let onTap: (TodoItem) -> Void
 
     // MARK: - Init
